@@ -13,10 +13,12 @@ lang en_US.UTF-8
 firewall --enabled --service=mdns
 
 # Repos
-url --url=https://kitten.repo.almalinux.org/10-kitten/BaseOS/x86_64_v2/os/
-repo --name="appstream" --baseurl=https://kitten.repo.almalinux.org/10-kitten/AppStream/x86_64_v2/os/
-repo --name="extras" --baseurl=https://kitten.repo.almalinux.org/10-kitten/extras-common/x86_64_v2/os/
-repo --name="crb" --baseurl=https://kitten.repo.almalinux.org/10-kitten/CRB/x86_64_v2/os/
+url --url=https://kitten.repo.almalinux.org/10-kitten/BaseOS/$basearch/os/
+repo --name="appstream" --baseurl=https://kitten.repo.almalinux.org/10-kitten/AppStream/$basearch/os/
+repo --name="extras" --baseurl=https://kitten.repo.almalinux.org/10-kitten/extras-common/$basearch/os/
+repo --name="crb" --baseurl=https://kitten.repo.almalinux.org/10-kitten/CRB/$basearch/os/
+repo --name="epel" --baseurl=https://dl.fedoraproject.org/pub/epel/10/Everything/$basearch/
+
 
 # Network information
 network --activate --bootproto=dhcp --device=link --onboot=on
@@ -129,42 +131,32 @@ glibc-all-langpacks
 # provide the livesys scripts
 livesys-scripts
 
-# Mandatory to build media with livemedia-creator
-memtest86+
-
-# libreoffice group
-#@office-suite
+# firefox
+#@internet-browser
+firefox
 
 # Workstation environment group
-@^workstation-product-environment
+@core
+@standard
+#@base-x
+@fonts
+@guest-desktop-agents
+@hardware-support
+@multimedia
+@networkmanager-submodules
+@print-client
 
 # GNOME specific
-@gnome-apps
-
-# Exclude unwanted packages from @anaconda-tools group
--gfs2-utils
--reiserfs-utils
-
-# Workstation specific
-bash-color-prompt
-exfatprogs
-#fpaste
-#iptstate
-#nss-mdns
-#ntfs-3g
-#ntfsprogs
-policycoreutils-python-utils
-psmisc
-python3-dnf-plugin-system-upgrade
-toolbox
-#unoconv
-uresourced
-whois
+@gnome-desktop
 
 # OpenVPN
 #openvpn
 #NetworkManager-openvpn
 #NetworkManager-openvpn-gnome
+
+# Exclude unwanted packages from @anaconda-tools group
+-gfs2-utils
+-reiserfs-utils
 
 # minimization
 -hplip
