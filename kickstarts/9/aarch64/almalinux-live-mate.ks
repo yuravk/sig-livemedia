@@ -19,6 +19,7 @@ url --url=https://atl.mirrors.knownhost.com/almalinux/9/BaseOS/$basearch/os/
 repo --name="appstream" --baseurl=https://atl.mirrors.knownhost.com/almalinux/9/AppStream/$basearch/os/
 repo --name="extras" --baseurl=https://atl.mirrors.knownhost.com/almalinux/9/extras/$basearch/os/
 repo --name="crb" --baseurl=https://atl.mirrors.knownhost.com/almalinux/9/CRB/$basearch/os/
+repo --name="devel" --baseurl=https://atl.mirrors.knownhost.com/almalinux/9/devel/$basearch/os/
 repo --name="epel" --baseurl=https://dl.fedoraproject.org/pub/epel/9/Everything/$basearch/
 
 # Firewall configuration
@@ -220,7 +221,7 @@ gvfs-fuse
 gvfs-gphoto2
 gvfs-mtp
 gvfs-smb
-#hexchat
+hexchat
 initial-setup-gui
 libmatekbd
 libmatemixer

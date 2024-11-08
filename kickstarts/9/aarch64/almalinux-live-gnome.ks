@@ -17,6 +17,7 @@ url --url=https://atl.mirrors.knownhost.com/almalinux/9/BaseOS/$basearch/os/
 repo --name="appstream" --baseurl=https://atl.mirrors.knownhost.com/almalinux/9/AppStream/$basearch/os/
 repo --name="extras" --baseurl=https://atl.mirrors.knownhost.com/almalinux/9/extras/$basearch/os/
 repo --name="crb" --baseurl=https://atl.mirrors.knownhost.com/almalinux/9/CRB/$basearch/os/
+repo --name="devel" --baseurl=https://atl.mirrors.knownhost.com/almalinux/9/devel/$basearch/os/
 repo --name="epel" --baseurl=https://dl.fedoraproject.org/pub/epel/9/Everything/$basearch/
 
 # Network information
@@ -135,6 +136,7 @@ livesys-scripts
 
 # Workstation environment group
 @core
+@gnome-desktop
 @standard
 @base-x
 @fonts
@@ -145,8 +147,7 @@ livesys-scripts
 @print-client
 
 # GNOME specific
-@gnome-desktop
-#@gnome-apps
+@gnome-apps
 
 # Exclude unwanted packages from @anaconda-tools group
 -gfs2-utils
@@ -164,7 +165,7 @@ policycoreutils-python-utils
 psmisc
 python3-dnf-plugin-system-upgrade
 toolbox
-#unoconv
+unoconv
 uresourced
 whois
 
