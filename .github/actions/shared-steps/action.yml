@@ -41,6 +41,8 @@ runs:
         image_type=${{ inputs.image_type }}
         kickstart="almalinux-live-${image_type,,}.ks"
         need_pkgs="lorax lorax-templates-almalinux anaconda unzip zstd"
+        date_stamp=${{ env.TIME_STAMP }}
+        date_stamp=${date_stamp::-6}
 
         case ${{ inputs.version_major }} in
           8)
@@ -69,7 +71,7 @@ runs:
             version_minor=
             releasever=10
             code_name_var=" Kitten"
-            results_name="AlmaLinux-Kitten-10-$(date -u '+%Y%m%d').${{ inputs.iteration }}-${{ inputs.arch }}-Live-${{ inputs.image_type }}"
+            results_name="AlmaLinux-Kitten-10-${date_stamp}.${{ inputs.iteration }}-${{ inputs.arch }}-Live-${{ inputs.image_type }}"
             volid="AlmaLinux-${releasever}-${{ inputs.arch }}"
             need_pkgs="${need_pkgs} libblockdev-nvme"
             ;;
