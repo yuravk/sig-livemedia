@@ -208,7 +208,7 @@ jobs:
 
 
   start-aarch64-runner:
-    name: ${{ matrix.version != '8' && ( format('Runner for {0} {1} {2}', inputs.version_major, matrix.arch, matrix.image_type)) || (format('{0} aarch64 runner [EXCLUDED]', inputs.version_major)) }}
+    name: ${{ inputs.version_major != '8' && ( format('Runner for {0} {1} {2}', inputs.version_major, matrix.arch, matrix.image_type)) || (format('{0} aarch64 runner [EXCLUDED]', inputs.version_major)) }}
     runs-on: ubuntu-latest
     needs: [init-data]
     strategy:
