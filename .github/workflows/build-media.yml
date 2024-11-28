@@ -37,10 +37,11 @@ on:
       version_major:
         description: 'AlmaLinux major version'
         required: true
-        default: '10-kitten'
+        default: '10'
         type: choice
         options:
           - 10-kitten
+          - 10
           - 9
           - 8
 
@@ -108,6 +109,16 @@ jobs:
           - version: 10-kitten
             arch: x86_64_v2
             image_type: XFCE
+          # TODO: the excludes below should be removed when '10' provides need packages
+          - version: 10
+            arch: x86_64_v2
+            image_type: KDE
+          - version: 10
+            arch: x86_64_v2
+            image_type: MATE
+          - version: 10
+            arch: x86_64_v2
+            image_type: XFCE
           # TODO: the excludes below should be removed when EPEL for 10 provides need packages
           - version: 10-kitten
             arch: x86_64
@@ -116,6 +127,15 @@ jobs:
             arch: x86_64
             image_type: MATE
           - version: 10-kitten
+            arch: x86_64
+            image_type: XFCE
+          - version: 10
+            arch: x86_64
+            image_type: KDE
+          - version: 10
+            arch: x86_64
+            image_type: MATE
+          - version: 10
             arch: x86_64
             image_type: XFCE
     env:
@@ -174,7 +194,7 @@ jobs:
         run: |
           vm_box='almalinux/${{ inputs.version_major }}'
           # TODO: use official Vagrant images when available
-          if [ "${{ inputs.version_major }}" = "10-kitten" ]; then
+          if [[ "${{ inputs.version_major }}" = *'10'* ]]; then
             vm_box='lkhn/almalinux-kitten'
             [ "${{ matrix.arch }}" = "x86_64_v2" ] && vm_box='lkhn/almalinux-kitten-x86-64-v2'
           fi
@@ -232,6 +252,15 @@ jobs:
           - version: 10-kitten
             arch: aarch64
             image_type: XFCE
+          - version: 10
+            arch: aarch64
+            image_type: KDE
+          - version: 10
+            arch: aarch64
+            image_type: MATE
+          - version: 10
+            arch: aarch64
+            image_type: XFCE
 
     steps:
       - name: Setup and start the runner
@@ -281,6 +310,15 @@ jobs:
             arch: aarch64
             image_type: MATE
           - version: 10-kitten
+            arch: aarch64
+            image_type: XFCE
+          - version: 10
+            arch: aarch64
+            image_type: KDE
+          - version: 10
+            arch: aarch64
+            image_type: MATE
+          - version: 10
             arch: aarch64
             image_type: XFCE
     env:
