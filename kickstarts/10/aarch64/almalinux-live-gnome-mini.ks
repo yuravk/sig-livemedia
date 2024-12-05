@@ -14,13 +14,17 @@ firewall --enabled --service=mdns
 
 # Repos
 # url --url=https://repo.almalinux.org/almalinux/10/BaseOS/$basearch/os/
-url --url=https://aarch64-pungi-10.almalinux.dev/almalinux/10/$basearch/latest_result_almalinux/compose/BaseOS/$basearch/os/
+url --url=https://vault.almalinux.org/10.0-beta/BaseOS/$basearch/os/
+#url --url=https://aarch64-pungi-10.almalinux.dev/almalinux/10/$basearch/latest_result_almalinux/compose/BaseOS/$basearch/os/
 # repo --name="appstream" --baseurl=https://repo.almalinux.org/almalinux/10/AppStream/$basearch/os/
-repo --name="appstream" --baseurl=https://aarch64-pungi-10.almalinux.dev/almalinux/10/$basearch/latest_result_almalinux/compose/AppStream/$basearch/os/
+repo --name="appstream" --baseurl=https://vault.almalinux.org/10.0-beta/AppStream/$basearch/os/
+#repo --name="appstream" --baseurl=https://aarch64-pungi-10.almalinux.dev/almalinux/10/$basearch/latest_result_almalinux/compose/AppStream/$basearch/os/
 # repo --name="extras" --baseurl=https://repo.almalinux.org/almalinux/10/extras-common/$basearch/os/
-repo --name="extras" --baseurl=https://aarch64-pungi-10.almalinux.dev/almalinux/10/$basearch/latest_result_almalinux/compose/extras/$basearch/os/
+repo --name="extras" --baseurl=https://vault.almalinux.org/10.0-beta/extras-common/$basearch/os/
+#repo --name="extras" --baseurl=https://aarch64-pungi-10.almalinux.dev/almalinux/10/$basearch/latest_result_almalinux/compose/extras/$basearch/os/
 # repo --name="crb" --baseurl=https://repo.almalinux.org/almalinux/10/CRB/$basearch/os/
-repo --name="crb" --baseurl=https://aarch64-pungi-10.almalinux.dev/almalinux/10/$basearch/latest_result_almalinux/compose/CRB/$basearch/os/
+repo --name="crb" --baseurl=https://vault.almalinux.org/10.0-beta/CRB/$basearch/os/
+# repo --name="crb" --baseurl=https://aarch64-pungi-10.almalinux.dev/almalinux/10/$basearch/latest_result_almalinux/compose/CRB/$basearch/os/
 repo --name="epel" --baseurl=https://dl.fedoraproject.org/pub/epel/10/Everything/$basearch/
 
 
