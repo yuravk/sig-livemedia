@@ -20,7 +20,7 @@ url --url=https://vault.almalinux.org/10.0-beta/BaseOS/$basearch/os/
 repo --name="appstream" --baseurl=https://vault.almalinux.org/10.0-beta/AppStream/$basearch/os/
 #repo --name="appstream" --baseurl=https://x86-64-pungi-10.almalinux.dev/almalinux/10/$basearch/latest_result_almalinux/compose/AppStream/$basearch/os/
 # repo --name="extras" --baseurl=https://repo.almalinux.org/almalinux/10/extras-common/$basearch/os/
-repo --name="extras" --baseurl=https://vault.almalinux.org/10.0-beta/extras-common/$basearch/os/
+repo --name="extras" --baseurl=https://vault.almalinux.org/10.0-beta/extras/$basearch/os/
 #repo --name="extras" --baseurl=https://x86-64-pungi-10.almalinux.dev/almalinux/10/$basearch/latest_result_almalinux/compose/extras/$basearch/os/
 # repo --name="crb" --baseurl=https://repo.almalinux.org/almalinux/10/CRB/$basearch/os/
 repo --name="crb" --baseurl=https://vault.almalinux.org/10.0-beta/CRB/$basearch/os/
