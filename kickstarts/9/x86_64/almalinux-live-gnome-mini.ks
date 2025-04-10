@@ -18,6 +18,7 @@ repo --name="appstream" --baseurl=https://vault.almalinux.org/9.6-beta/AppStream
 repo --name="extras" --baseurl=https://vault.almalinux.org/9.6-beta/extras/$basearch/os/
 repo --name="crb" --baseurl=https://vault.almalinux.org/9.6-beta/CRB/$basearch/os/
 repo --name="epel" --baseurl=https://dl.fedoraproject.org/pub/epel/9/Everything/$basearch/
+repo --name="microsoft" --baseurl=https://packages.microsoft.com/rhel/9/prod/
 
 
 # Network information
