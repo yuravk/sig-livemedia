@@ -13,10 +13,14 @@ lang en_US.UTF-8
 firewall --enabled --service=mdns
 
 # Repos
-url --url=https://atl.mirrors.knownhost.com/almalinux/9/BaseOS/$basearch/os/
-repo --name="appstream" --baseurl=https://atl.mirrors.knownhost.com/almalinux/9/AppStream/$basearch/os/
-repo --name="extras" --baseurl=https://atl.mirrors.knownhost.com/almalinux/9/extras/$basearch/os/
-repo --name="crb" --baseurl=https://atl.mirrors.knownhost.com/almalinux/9/CRB/$basearch/os/
+# url --url=https://atl.mirrors.knownhost.com/almalinux/9/BaseOS/$basearch/os/
+url --url=https://aarch64-pungi-9.almalinux.dev/almalinux/9/aarch64/latest_result_almalinux/compose/BaseOS/aarch64/os/
+# repo --name="appstream" --baseurl=https://atl.mirrors.knownhost.com/almalinux/9/AppStream/$basearch/os/
+repo --name="appstream" --baseurl=https://aarch64-pungi-9.almalinux.dev/almalinux/9/aarch64/latest_result_almalinux/compose/AppStream/aarch64/os/
+# repo --name="extras" --baseurl=https://atl.mirrors.knownhost.com/almalinux/9/extras/$basearch/os/
+repo --name="extras" --baseurl=https://aarch64-pungi-9.almalinux.dev/almalinux/9/aarch64/latest_result_almalinux/compose/extras/aarch64/os/
+# repo --name="crb" --baseurl=https://atl.mirrors.knownhost.com/almalinux/9/CRB/$basearch/os/
+repo --name="crb" --baseurl=https://aarch64-pungi-9.almalinux.dev/almalinux/9/aarch64/latest_result_almalinux/compose/CRB/aarch64/os/
 repo --name="epel" --baseurl=https://dl.fedoraproject.org/pub/epel/9/Everything/$basearch/
 
 
