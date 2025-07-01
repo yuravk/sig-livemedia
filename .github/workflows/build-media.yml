@@ -228,64 +228,66 @@ jobs:
           notify_mattermost: ${{ inputs.notify_mattermost }}
 
 
-  start-aarch64-runner:
-    name: ${{ inputs.version_major != '8' && format('Runner for {0} {1} {2}', inputs.version_major, matrix.arch, matrix.image_type) || format('{0} aarch64 runner [EXCLUDED]', inputs.version_major) }}
-    runs-on: ubuntu-24.04
-    needs: [init-data]
-    strategy:
-      fail-fast: false
-      matrix:
-        # Set image types matrix based on boolean inputs.* with true value
-        image_type: ${{ fromJSON(format('["{0}", "{1}", "{2}", "{3}", "{4}"]', ( inputs.GNOME && 'GNOME' ), ( inputs.GNOME-Mini && 'GNOME-Mini' ), ( inputs.KDE && 'KDE' ), ( inputs.MATE && 'MATE' ), ( inputs.XFCE && 'XFCE' ) )) }}
-        version: ${{ fromJSON(format('["{0}"]', inputs.version_major)) }}
-        arch: [aarch64]
-        exclude:
-          - image_type: 'false'
-          - version: 8
-            arch: aarch64
-          # TODO: the excludes below should be removed when EPEL for 10 provides need packages
-          - version: 10-kitten
-            arch: aarch64
-            image_type: MATE
-          - version: 10-kitten
-            arch: aarch64
-            image_type: XFCE
-          - version: 10
-            arch: aarch64
-            image_type: MATE
-          - version: 10
-            arch: aarch64
-            image_type: XFCE
+  # start-aarch64-runner:
+  #   name: ${{ inputs.version_major != '8' && format('Runner for {0} {1} {2}', inputs.version_major, matrix.arch, matrix.image_type) || format('{0} aarch64 runner [EXCLUDED]', inputs.version_major) }}
+  #   runs-on: ubuntu-24.04
+  #   needs: [init-data]
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       # Set image types matrix based on boolean inputs.* with true value
+  #       image_type: ${{ fromJSON(format('["{0}", "{1}", "{2}", "{3}", "{4}"]', ( inputs.GNOME && 'GNOME' ), ( inputs.GNOME-Mini && 'GNOME-Mini' ), ( inputs.KDE && 'KDE' ), ( inputs.MATE && 'MATE' ), ( inputs.XFCE && 'XFCE' ) )) }}
+  #       version: ${{ fromJSON(format('["{0}"]', inputs.version_major)) }}
+  #       arch: [aarch64]
+  #       exclude:
+  #         - image_type: 'false'
+  #         - version: 8
+  #           arch: aarch64
+  #         # TODO: the excludes below should be removed when EPEL for 10 provides need packages
+  #         - version: 10-kitten
+  #           arch: aarch64
+  #           image_type: MATE
+  #         - version: 10-kitten
+  #           arch: aarch64
+  #           image_type: XFCE
+  #         - version: 10
+  #           arch: aarch64
+  #           image_type: MATE
+  #         - version: 10
+  #           arch: aarch64
+  #           image_type: XFCE
 
-    steps:
-      - name: Setup and start the runner
-        if: ${{ inputs.version_major != '8' }}
-        id: start-ec2-runner
-        uses: NextChapterSoftware/ec2-action-builder@v1.7
-        with:
-          github_token: ${{ secrets.GIT_HUB_TOKEN }}
-          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws_region: ${{ secrets.AWS_REGION }}
-          ec2_ami_id: ${{ secrets[format('EC2_AMI_ID_AL{0}',  ( matrix.version == '10-kitten' && '10_KITTEN' || matrix.version))] }}
-          ec2_subnet_id: ${{ secrets.EC2_SUBNET_ID}}
-          ec2_security_group_id: ${{ secrets.EC2_SECURITY_GROUP_ID }}
+  #   steps:
+  #     - name: Setup and start the runner
+  #       if: ${{ inputs.version_major != '8' }}
+  #       id: start-ec2-runner
+  #       uses: NextChapterSoftware/ec2-action-builder@v1.7
+  #       with:
+  #         github_token: ${{ secrets.GIT_HUB_TOKEN }}
+  #         aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  #         aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  #         aws_region: ${{ secrets.AWS_REGION }}
+  #         ec2_ami_id: ${{ secrets[format('EC2_AMI_ID_AL{0}',  ( matrix.version == '10-kitten' && '10_KITTEN' || matrix.version))] }}
+  #         ec2_subnet_id: ${{ secrets.EC2_SUBNET_ID}}
+  #         ec2_security_group_id: ${{ secrets.EC2_SECURITY_GROUP_ID }}
 
-          ec2_instance_type: t4g.medium       # 2 vCPU and 4 GiM Memory
-          ec2_root_disk_size_gb: "24"         # override default size which is too small for images
-          ec2_root_disk_ebs_class: "gp3"      # use faster and cheeper storage instead of default 'gp2'
-          ec2_instance_ttl: 60                # Optional (default is 60 minutes)
-          ec2_spot_instance_strategy: None    # Other options are: SpotOnly, BestEffort, MaxPerformance
-          ec2_instance_tags: >                # Required for IAM role resource permission scoping
-            [
-                {"Key": "Project", "Value": "GitHub Actions Self-hosted Runners"}
-            ]
+  #         ec2_instance_type: t4g.medium       # 2 vCPU and 4 GiM Memory
+  #         ec2_root_disk_size_gb: "24"         # override default size which is too small for images
+  #         ec2_root_disk_ebs_class: "gp3"      # use faster and cheeper storage instead of default 'gp2'
+  #         ec2_instance_ttl: 60                # Optional (default is 60 minutes)
+  #         ec2_spot_instance_strategy: None    # Other options are: SpotOnly, BestEffort, MaxPerformance
+  #         ec2_instance_tags: >                # Required for IAM role resource permission scoping
+  #           [
+  #               {"Key": "Project", "Value": "GitHub Actions Self-hosted Runners"}
+  #           ]
 
   build-aarch64:
     name: ${{ inputs.version_major != '8' && format('{0} {1} {2}', inputs.version_major, matrix.arch, matrix.image_type) || format('{0} aarch64 [EXCLUDED]', inputs.version_major) }}
-    runs-on: ${{ inputs.version_major != '8' && github.run_id || 'ubuntu-24.04' }}
-    if: ${{ always() && contains(join(needs.start-aarch64-runner.result, ','), 'success') }}
-    needs: [init-data, start-aarch64-runner]
+    # runs-on: ${{ inputs.version_major != '8' && github.run_id || 'ubuntu-24.04' }}
+    runs-on: runs-on=${{github.run_id}}/runner=cpu-16/image=almalinux-${{ matrix.version }}-aarch64/extras=tmpfs
+    # if: ${{ always() && contains(join(needs.start-aarch64-runner.result, ','), 'success') }}
+    # needs: [init-data, start-aarch64-runner]
+    needs: [init-data]
     strategy:
       fail-fast: false
       matrix:
