@@ -16,9 +16,13 @@ network  --bootproto=dhcp --device=link --activate
 
 # Repos
 url --url=https://kitten.repo.almalinux.org/10-kitten/BaseOS/x86_64_v2/os/
+repo --name="baseos-pulp" --baseurl=https://build.almalinux.org/pulp/content/prod/almalinux-kitten-10-baseos-x86_64_v2/
 repo --name="appstream" --baseurl=https://kitten.repo.almalinux.org/10-kitten/AppStream/x86_64_v2/os/
+repo --name="appstream-pulp" --baseurl=https://build.almalinux.org/pulp/content/prod/almalinux-kitten-10-appstream-x86_64_v2/
 repo --name="extras" --baseurl=https://kitten.repo.almalinux.org/10-kitten/extras-common/x86_64_v2/os/
+repo --name="extras-pulp" --baseurl=https://build.almalinux.org/pulp/content/prod/almalinux-kitten-10-extras-common-x86_64_v2/
 repo --name="crb" --baseurl=https://kitten.repo.almalinux.org/10-kitten/CRB/x86_64_v2/os/
+repo --name="crb-pulp" --baseurl=https://build.almalinux.org/pulp/content/prod/almalinux-kitten-10-crb-x86_64_v2/
 repo --name="epel" --baseurl=https://epel.repo.almalinux.org/10/x86_64_v2/
 
 # Firewall configuration
