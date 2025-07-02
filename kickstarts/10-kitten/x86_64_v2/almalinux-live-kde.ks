@@ -24,6 +24,7 @@ repo --name="extras-pulp" --baseurl=https://build.almalinux.org/pulp/content/pro
 repo --name="crb" --baseurl=https://kitten.repo.almalinux.org/10-kitten/CRB/x86_64_v2/os/
 repo --name="crb-pulp" --baseurl=https://build.almalinux.org/pulp/content/prod/almalinux-kitten-10-crb-x86_64_v2/
 repo --name="epel" --baseurl=https://epel.repo.almalinux.org/10/x86_64_v2/
+repo --name="epel-pulp" --baseurl=https://build.almalinux.org/pulp/content/copr/eabdullin1-epel-al-almalinux-kitten-10-x86_64_v2-dr/
 
 # Firewall configuration
 firewall --enabled --service=mdns
