@@ -13,11 +13,11 @@ lang en_US.UTF-8
 firewall --enabled --service=mdns
 
 # Repos
-url --url=https://repo.almalinux.org/almalinux/10/BaseOS/x86_64_v2/os/
-repo --name="appstream" --baseurl=https://repo.almalinux.org/almalinux/10/AppStream/x86_64_v2/os/
-repo --name="extras" --baseurl=https://repo.almalinux.org/almalinux/10/extras/x86_64_v2/os/
-repo --name="crb" --baseurl=https://repo.almalinux.org/almalinux/10/CRB/x86_64_v2/os/
-repo --name="epel" --baseurl=https://repo.almalinux.org/almalinux-epel/10z/x86_64_v2/
+url --url=https://x86-64-pungi-10.almalinux.dev/almalinux/10/x86_64_v2/latest_result_almalinux/compose/BaseOS/x86_64_v2/os/
+repo --name="appstream" --baseurl=https://x86-64-pungi-10.almalinux.dev/almalinux/10/x86_64_v2/latest_result_almalinux/compose/AppStream/x86_64_v2/os/
+repo --name="extras" --baseurl=https://x86-64-pungi-10.almalinux.dev/almalinux/10/x86_64_v2/latest_result_almalinux/compose/extras/x86_64_v2/os/
+repo --name="crb" --baseurl=https://x86-64-pungi-10.almalinux.dev/almalinux/10/x86_64_v2/latest_result_almalinux/compose/CRB/x86_64_v2/os/
+repo --name="epel" --baseurl=https://epel.repo.almalinux.org/10.1z/x86_64_v2/
 
 # Network information
 network --activate --bootproto=dhcp --device=link --onboot=on

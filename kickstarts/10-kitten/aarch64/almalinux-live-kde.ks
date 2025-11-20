@@ -15,11 +15,11 @@ timezone US/Eastern
 network  --bootproto=dhcp --device=link --activate
 
 # Repos
-url --url=https://kitten.repo.almalinux.org/10-kitten/BaseOS/$basearch/os/
-repo --name="appstream" --baseurl=https://kitten.repo.almalinux.org/10-kitten/AppStream/$basearch/os/
-repo --name="extras" --baseurl=https://kitten.repo.almalinux.org/10-kitten/extras-common/$basearch/os/
-repo --name="crb" --baseurl=https://kitten.repo.almalinux.org/10-kitten/CRB/$basearch/os/
-repo --name="epel" --baseurl=https://dl.fedoraproject.org/pub/epel/10/Everything/$basearch/
+url --url=https://aarch64-pungi-10.almalinux.dev/almalinux/10/aarch64/latest_result_almalinux/compose/BaseOS/$basearch/os/
+repo --name="appstream" --baseurl=https://aarch64-pungi-10.almalinux.dev/almalinux/10/aarch64/latest_result_almalinux/compose/AppStream/$basearch/os/
+repo --name="extras" --baseurl=https://aarch64-pungi-10.almalinux.dev/almalinux/10/aarch64/latest_result_almalinux/compose/extras-common/$basearch/os/
+repo --name="crb" --baseurl=https://aarch64-pungi-10.almalinux.dev/almalinux/10/aarch64/latest_result_almalinux/compose/CRB/$basearch/os/
+repo --name="epel" --baseurl=https://dl.fedoraproject.org/pub/epel/10z/Everything/$basearch/
 
 # Firewall configuration
 firewall --enabled --service=mdns

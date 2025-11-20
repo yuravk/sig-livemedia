@@ -61,7 +61,7 @@ runs:
             need_pkgs="${need_pkgs} libblockdev-nvme"
             ;;
           10)
-            version_minor=".0"
+            version_minor=".1"
             releasever=${{ inputs.version_major }}${version_minor}
             results_name="AlmaLinux-${releasever}-${{ inputs.arch }}-Live-${{ inputs.image_type }}"
             volid="AlmaLinux-${releasever//./_}-${{ inputs.arch }}" # TODO 'Live' skipped to fit into 32 chars
@@ -166,12 +166,14 @@ runs:
       run: |
         # Install need packages
         enable_repo=${{ env.dnf_crb_repo }}
-        ${{ env.run }} "sudo dnf update -y"
+        # TODO: do not update for 10.x and Kitten images to avoid breaking 'vagrant scp':
+        # kex_exchange_identification: read: Connection reset by peer
+        [[ "${{ inputs.version_major }}" != *'10'* ]] && ${{ env.run }} "sudo dnf update -y"
         ${{ env.run }} "sudo dnf install -y --enablerepo=${enable_repo,,} ${{ env.need_pkgs }}"
 
     - name: Set SElinux current mode into permissive
       shell: bash
-      if: inputs.version_major == '10-kitten'
+      if: contains(inputs.version_major, '10')
       run: |
         ${{ env.run }} "sudo setenforce 0"
 

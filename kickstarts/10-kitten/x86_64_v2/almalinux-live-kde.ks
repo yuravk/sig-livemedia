@@ -15,11 +15,11 @@ timezone US/Eastern
 network  --bootproto=dhcp --device=link --activate
 
 # Repos
-url --url=https://kitten.repo.almalinux.org/10-kitten/BaseOS/x86_64_v2/os/
-repo --name="appstream" --baseurl=https://kitten.repo.almalinux.org/10-kitten/AppStream/x86_64_v2/os/
-repo --name="extras" --baseurl=https://kitten.repo.almalinux.org/10-kitten/extras-common/x86_64_v2/os/
-repo --name="crb" --baseurl=https://kitten.repo.almalinux.org/10-kitten/CRB/x86_64_v2/os/
-repo --name="epel" --baseurl=https://epel.repo.almalinux.org/10/x86_64_v2/
+url --url=https://x86-64-pungi-10.almalinux.dev/almalinux/10/x86_64_v2/latest_result_almalinux/compose/BaseOS/x86_64_v2/os/
+repo --name="appstream" --baseurl=https://x86-64-pungi-10.almalinux.dev/almalinux/10/x86_64_v2/latest_result_almalinux/compose/AppStream/x86_64_v2/os/
+repo --name="extras" --baseurl=https://x86-64-pungi-10.almalinux.dev/almalinux/10/x86_64_v2/latest_result_almalinux/compose/extras-common/x86_64_v2/os/
+repo --name="crb" --baseurl=https://x86-64-pungi-10.almalinux.dev/almalinux/10/x86_64_v2/latest_result_almalinux/compose/CRB/x86_64_v2/os/
+repo --name="epel" --baseurl=https://epel.repo.almalinux.org/10.1z/x86_64_v2/
 
 # Firewall configuration
 firewall --enabled --service=mdns
