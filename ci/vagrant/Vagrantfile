@@ -17,7 +17,8 @@ Vagrant.configure("2") do |config|
     config.vm.provision "shell", inline: <<-SHELL
         # TODO: do not upgrade if 10.x and Kitten to avoid breaking 'vagrant scp':
         # kex_exchange_identification: read: Connection reset by peer
-        [[ "#{ENV['vm_box']}" != *'10'* ]] && sudo dnf -y update || true
+        # [[ "#{ENV['vm_box']}" != *'10'* ]] &&
+        sudo dnf -y update || true
     SHELL
 
     # Reboot after update
