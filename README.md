@@ -1,158 +1,311 @@
-# SIG - AlmaLinux Live Media
+# AlmaLinux Live Media
 
-This git repository contains Kickstarts and other scripts needed to produce the AlmaLinux Live DVDs. Two ways to create/build this project. Using `docker` containers or `AlmaLinux` system.
+This git repository contains Kickstarts and other scripts needed to produce the AlmaLinux Live DVDs. You can build live media using the automated `build-livemedia.sh` script (recommended) or manually with `livemedia-creator` commands on an AlmaLinux system.
 
 ## Using Live media
 
-Live media ISO files are available at https://repo.almalinux.org/almalinux/8/live/x86_64/ and https://repo.almalinux.org/almalinux/9/live/x86_64/, or use mirrors https://mirrors.almalinux.org find a close one. Refer to project wiki https://wiki.almalinux.org/LiveMedia.html#about-live-media for detailed installation steps.
+Live media ISO files are available for download from the official AlmaLinux repositories:
 
-## Build using AlmaLinux System
+**AlmaLinux 8:**
+- x86_64: https://repo.almalinux.org/almalinux/8/live/x86_64/
 
-`AlmaLinux` system installed on a physical or vitual system is required use these steps to live-media ISO files. This proces takes `20-50 minutes` depends on number of CPU cores and internet speed. Minimum `15GB` work space for temporary files. Resulting ISO size ranges from `1.4GB` to `2.4GB` depends on build type. Execute following commands from root folder of sources.
+**AlmaLinux 9:**
+- x86_64: https://repo.almalinux.org/almalinux/9/live/x86_64/
+- aarch64: https://repo.almalinux.org/almalinux/9/live/aarch64/
+
+**AlmaLinux 10:**
+- x86_64: https://repo.almalinux.org/almalinux/10/live/x86_64/
+- x86_64_v2: https://repo.almalinux.org/almalinux/10/live/x86_64_v2/
+- aarch64: https://repo.almalinux.org/almalinux/10/live/aarch64/
+
+**AlmaLinux Kitten (Development):**
+- x86_64: https://kitten.repo.almalinux.org/10-kitten/live/x86_64/
+- x86_64_v2: https://kitten.repo.almalinux.org/10-kitten/live/x86_64_v2/
+- aarch64: https://kitten.repo.almalinux.org/10-kitten/live/aarch64/
+
+For faster downloads, use mirrors at https://mirrors.almalinux.org to find a location closer to you. Refer to the project wiki https://wiki.almalinux.org/LiveMedia.html#about-live-media for detailed installation and usage instructions.
+
+## Build Live Media
+
+Building AlmaLinux Live media requires an AlmaLinux system (physical or virtual). The build process takes `20-50 minutes` depending on CPU cores and internet speed. You need minimum `15GB` workspace for temporary files. Resulting ISO size ranges from `1.4GB` to `2.4GB` depending on desktop environment.
 
 
 ### Build Environments
 
-This project contains number of `KickStart` files to build live media for AlmaLiux. It uses `anaconda` and `livecd-tools` or `lorax` packages for ISO file build process. Use following command to install necessary softwares to build this project. Make sure to reboot the system prior to run the build commands.
+This project contains number of `KickStart` files to build live media for AlmaLinux. It uses `anaconda` and `lorax` packages for the ISO file build process. The recommended approach is to use `livemedia-creator` with the `lorax` backend.
 
+#### Prerequisites
+
+- AlmaLinux system (physical or virtual) with minimum 15GB workspace
+- Build process takes 20-50 minutes depending on CPU cores and internet speed
+- Root or sudo access required
+
+#### Install Required Packages
+
+**For AlmaLinux 8:**
 ```sh
-sudo dnf -y install epel-release
-sudo dnf -y --enablerepo="epel" install anaconda-tui \
-                livecd-tools \
-                lorax \
-                pykickstart \
-                efibootmgr \
-                efi-filesystem \
-                efi-srpm-macros \
-                efivar-libs \
-                grub2-efi-*64 \
-                grub2-efi-*64-cdboot \
-                grub2-tools-efi \
-                shim-*64
+sudo dnf update -y
+sudo dnf install -y --enablerepo=powertools lorax lorax-templates-almalinux anaconda unzip zstd
 ```
 
-### Build using `livecd-tools`
-
-Run following commands to build GNOME live media.
-
+**For AlmaLinux 9:**
 ```sh
-sudo livecd-creator --config kickstarts/almalinux-8-live-gnome.ks \
-               --fslabel AlmaLinux-8_8-x86_64-Live-GNOME \
-               --title="AlmaLinux Live 8.8" \
-               --product="AlmaLinux Live 8.8" \
-               --cache=$PWD/pkg-cache-alma \
-               --releasever=8.8
+sudo dnf update -y
+sudo dnf install -y --enablerepo=crb lorax lorax-templates-almalinux anaconda unzip zstd libblockdev-nvme
 ```
 
-Run following commands to build GNOME Mini live media.
-
+**For AlmaLinux 10:**
 ```sh
-sudo livecd-creator --config kickstarts/almalinux-8-live-gnome-mini.ks \
-               --fslabel AlmaLinux-8_8-x86_64-Live-Mini \
-               --title="AlmaLinux Live 8.8" \
-               --product="AlmaLinux Live 8.8" \
-               --cache=$PWD/pkg-cache-alma \
-               --releasever=8.8
+sudo dnf update -y
+sudo dnf install -y --enablerepo=crb lorax lorax-templates-almalinux anaconda unzip zstd libblockdev-nvme
 ```
 
-Run following commands to build KDE live media.
-
+**Note:** For AlmaLinux 10, you may need to temporarily set SELinux to permissive mode:
 ```sh
-sudo livecd-creator --config kickstarts/almalinux-8-live-kde.ks \
-               --fslabel AlmaLinux-8_8-x86_64-Live-KDE \
-               --title="AlmaLinux Live 8.8" \
-               --product="AlmaLinux Live 8.8" \
-               --cache=$PWD/pkg-cache-alma \
-               --releasever=8.8
+sudo setenforce 0
 ```
 
-Run following commands to build XFCE live media.
+### Quick Start with Build Script
+
+For a simplified build process, use the included `build-livemedia.sh` script that automates environment setup and media creation:
 
 ```sh
-sudo livecd-creator --config kickstarts/almalinux-8-live-xfce.ks \
-               --fslabel AlmaLinux-8_8-x86_64-Live-XFCE \
-               --title="AlmaLinux Live 8.8" \
-               --product="AlmaLinux Live 8.8" \
-               --cache=$PWD/pkg-cache-alma \
-               --releasever=8.8
+# Make the script executable
+chmod +x build-livemedia.sh
+
+# Build AlmaLinux 9.7 GNOME Live Media
+sudo ./build-livemedia.sh 9 GNOME
+
+# Build AlmaLinux 10.1 KDE Live Media
+sudo ./build-livemedia.sh 10 KDE
+
+# Build AlmaLinux Kitten GNOME-Mini Live Media
+sudo ./build-livemedia.sh 10-kitten GNOME-Mini
+
+# To build media with x86_64_v2 packages for AlmaLinux 10+ (optional)
+USE_X86_64_V2=1 sudo ./build-livemedia.sh 10 KDE
+
+# Show all available options
+./build-livemedia.sh --help
 ```
 
-Run following commands to build MATE live media.
+**Features:**
+- **Automated setup**: Installs required packages and prepares build environment
+- **Smart versioning**: Automatically maps major versions to current releases (8→8.10, 9→9.7, 10→10.1)
+- **Architecture detection**: Supports x86_64, aarch64, and x86_64_v2 automatically
+- **Comprehensive logging**: Creates detailed logs in `./results/` directory
+- **Error handling**: Validates inputs and provides helpful error messages
+- **Checksum generation**: Automatically creates SHA256 checksums for built ISOs
 
-```sh
-sudo livecd-creator --config kickstarts/almalinux-8-live-mate.ks \
-               --fslabel AlmaLinux-8_8-x86_64-Live-MATE \
-               --title="AlmaLinux Live 8.8" \
-               --product="AlmaLinux Live 8.8" \
-               --cache=$PWD/pkg-cache-alma \
-               --releasever=8.8
-```
+**Supported combinations:**
+- **Versions**: 8, 9, 10, 10-kitten
+- **Desktop Environments**: GNOME, GNOME-Mini, KDE, XFCE, MATE
+- **Architecture**: Version-specific support (see table below)
 
+The script handles all the complexity shown in the manual examples below and follows the same build process used in the CI workflows.
 
-### Build using `lorax`
+### Manual Build using `livemedia-creator`
 
-Run following commands to build GNOME live media.
+For advanced users or custom builds, you can use `livemedia-creator` directly. The following examples show manual commands for building AlmaLinux Live media. The kickstart files are organized by version and architecture in the `kickstarts/` directory.
 
-```sh
-sudo livemedia-creator \
-    --ks=kickstarts/almalinux-8-live-gnome.ks \
-    --no-virt --resultdir  ./iso-gnome \
-    --project "AlmaLinux Live" \
-    --make-iso \
-    --iso-only \
-    --iso-name AlmaLinux-8.8-x86_64-Live-GNOME.iso \
-    --releasever 8.8 \
-    --volid "AlmaLinux-8_8-x86_64-Live-GNOME" \
-    --nomacboot
-```
+**Note:** The build script above handles all these steps automatically. Use these manual commands only if you need custom configuration.
 
-Run following commands to build GNOME Mini live media.
+#### AlmaLinux 8.10 Examples
 
+**GNOME Live Media:**
 ```sh
 sudo livemedia-creator \
-    --ks=kickstarts/almalinux-8-live-gnome-mini.ks \
-    --no-virt --resultdir ./iso-gnome-mini \
-    --project "AlmaLinux Live" \
+    --ks=./kickstarts/8/x86_64/almalinux-live-gnome.ks \
+    --no-virt \
+    --resultdir ./iso_GNOME \
+    --project "Live AlmaLinux" \
     --make-iso \
     --iso-only \
-    --iso-name AlmaLinux-8.8-x86_64-Live-GNOME-Mini.iso \
-    --releasever 8.8 \
-    --volid "AlmaLinux-8_8-x86_64-Live-Mini" \
-    --nomacboot
+    --iso-name "AlmaLinux-8.10-x86_64-Live-GNOME.iso" \
+    --releasever "8.10" \
+    --volid "AlmaLinux-8_10-x86_64-Live-GNOME" \
+    --nomacboot \
+    --logfile ./livemedia.log \
+    --anaconda-arg="--product AlmaLinux"
 ```
 
-Run following commands to build KDE live media.
-
+**GNOME-Mini Live Media:**
 ```sh
 sudo livemedia-creator \
-    --ks=kickstarts/almalinux-8-live-kde.ks \
-    --no-virt --resultdir  ./iso-kde \
-    --project "AlmaLinux Live" \
+    --ks=./kickstarts/8/x86_64/almalinux-live-gnome-mini.ks \
+    --no-virt \
+    --resultdir ./iso_GNOME-MINI \
+    --project "Live AlmaLinux" \
     --make-iso \
     --iso-only \
-    --iso-name AlmaLinux-8.8-x86_64-Live-KDE.iso \
-    --releasever 8.8 \
-    --volid "AlmaLinux-8_8-x86_64-Live-KDE" \
-    --nomacboot
+    --iso-name "AlmaLinux-8.10-x86_64-Live-GNOME-Mini.iso" \
+    --releasever "8.10" \
+    --volid "AlmaLinux-8_10-x86_64-Live-Mini" \
+    --nomacboot \
+    --logfile ./livemedia.log \
+    --anaconda-arg="--product AlmaLinux"
 ```
 
-Run following commands to build XFCE live media.
-
+**KDE Live Media:**
 ```sh
 sudo livemedia-creator \
-    --ks=kickstarts/almalinux-8-live-xfce.ks \
-    --no-virt --resultdir  ./iso-xfce \
-    --project "AlmaLinux Live" \
+    --ks=./kickstarts/8/x86_64/almalinux-live-kde.ks \
+    --no-virt \
+    --resultdir ./iso_KDE \
+    --project "Live AlmaLinux" \
     --make-iso \
     --iso-only \
-    --iso-name AlmaLinux-8.8-x86_64-Live-XFCE.iso \
-    --releasever 8.8 \
-    --volid "AlmaLinux-8_8-x86_64-Live-XFCE" \
-    --nomacboot
+    --iso-name "AlmaLinux-8.10-x86_64-Live-KDE.iso" \
+    --releasever "8.10" \
+    --volid "AlmaLinux-8_10-x86_64-Live-KDE" \
+    --nomacboot \
+    --logfile ./livemedia.log \
+    --anaconda-arg="--product AlmaLinux"
 ```
 
-### Additional notes
+#### AlmaLinux 9.7 Examples
 
-* Current build scripts uses the AlmaLinux mirror closer to `US/East` zone. Use https://mirrors.almalinux.org to find and change different mirror.
-* Use following commnd to generate package list to install `rpm -qa --qf "%{n}\n" | grep -v pubkey | sort > packages-name.txt`
-* Make sure to use `--cache` for build process, it will help for faster build and less network traffic.'
+**GNOME Live Media:**
+```sh
+sudo livemedia-creator \
+    --ks=./kickstarts/9/x86_64/almalinux-live-gnome.ks \
+    --no-virt \
+    --resultdir ./iso_GNOME \
+    --project "Live AlmaLinux" \
+    --make-iso \
+    --iso-only \
+    --iso-name "AlmaLinux-9.7-x86_64-Live-GNOME.iso" \
+    --releasever "9.7" \
+    --volid "AlmaLinux-9_7-x86_64-Live-GNOME" \
+    --nomacboot \
+    --logfile ./livemedia.log
+```
+
+**MATE Live Media:**
+```sh
+sudo livemedia-creator \
+    --ks=./kickstarts/9/x86_64/almalinux-live-mate.ks \
+    --no-virt \
+    --resultdir ./iso_MATE \
+    --project "Live AlmaLinux" \
+    --make-iso \
+    --iso-only \
+    --iso-name "AlmaLinux-9.7-x86_64-Live-MATE.iso" \
+    --releasever "9.7" \
+    --volid "AlmaLinux-9_7-x86_64-Live-MATE" \
+    --nomacboot \
+    --logfile ./livemedia.log
+```
+
+#### AlmaLinux 10.1 Examples
+
+**GNOME Live Media:**
+```sh
+sudo livemedia-creator \
+    --ks=./kickstarts/10/x86_64/almalinux-live-gnome.ks \
+    --no-virt \
+    --resultdir ./iso_GNOME \
+    --project "Live AlmaLinux" \
+    --make-iso \
+    --iso-only \
+    --iso-name "AlmaLinux-10.1-x86_64-Live-GNOME.iso" \
+    --releasever "10.1" \
+    --volid "AlmaLinux-10_1-x86_64" \
+    --nomacboot \
+    --logfile ./livemedia.log
+```
+
+**KDE Live Media:**
+```sh
+sudo livemedia-creator \
+    --ks=./kickstarts/10/x86_64/almalinux-live-kde.ks \
+    --no-virt \
+    --resultdir ./iso_KDE \
+    --project "Live AlmaLinux" \
+    --make-iso \
+    --iso-only \
+    --iso-name "AlmaLinux-10.1-x86_64-Live-KDE.iso" \
+    --releasever "10.1" \
+    --volid "AlmaLinux-10_1-x86_64" \
+    --nomacboot \
+    --logfile ./livemedia.log
+```
+
+#### Architecture Support
+
+For different architectures, adjust the kickstart path and output names accordingly:
+
+**For aarch64 (ARM64):**
+```sh
+sudo livemedia-creator \
+    --ks=./kickstarts/9/aarch64/almalinux-live-gnome.ks \
+    --no-virt \
+    --resultdir ./iso_GNOME \
+    --project "Live AlmaLinux" \
+    --make-iso \
+    --iso-only \
+    --iso-name "AlmaLinux-9.7-aarch64-Live-GNOME.iso" \
+    --releasever "9.7" \
+    --volid "AlmaLinux-9_7-aarch64-Live-GNOME" \
+    --nomacboot \
+    --logfile ./livemedia.log
+```
+
+**For x86_64_v2 (Optimized x86_64):**
+```sh
+sudo livemedia-creator \
+    --ks=./kickstarts/10/x86_64_v2/almalinux-live-kde.ks \
+    --no-virt \
+    --resultdir ./iso_KDE \
+    --project "Live AlmaLinux" \
+    --make-iso \
+    --iso-only \
+    --iso-name "AlmaLinux-10.1-x86_64_v2-Live-KDE.iso" \
+    --releasever "10.1" \
+    --volid "AlmaLinux-10_1-x86_64_v2-KDE" \
+    --nomacboot \
+    --logfile ./livemedia.log
+```
+
+### Additional Notes
+
+#### Build Tips
+* **Recommended approach:** Use the `build-livemedia.sh` script for automated, error-free builds
+* **Performance:** The build process benefits from multiple CPU cores and faster storage (SSD recommended)
+* **Network:** Builds require downloading packages; a stable internet connection is essential
+* **Storage:** Ensure at least 15GB free space for temporary files and output ISOs
+* **Logs:** The build script automatically creates comprehensive logs; manual builds should use `--logfile` parameter
+
+#### Available Desktop Environments
+The following desktop environments are supported:
+- **GNOME** - Full-featured desktop environment
+- **GNOME-Mini** - Minimal GNOME variant
+- **KDE** - Modern Plasma desktop
+- **XFCE** - Lightweight desktop environment
+- **MATE** - Traditional desktop experience
+
+#### Architecture and Desktop Environment Support Matrix
+
+| Version | Architecture | GNOME | GNOME-Mini | KDE | XFCE | MATE |
+|---------|-------------|-------|------------|-----|------|------|
+| 8       | x86_64      | ✅    | ✅         | ✅  | ✅   | ✅   |
+| 9       | x86_64      | ✅    | ✅         | ✅  | ✅   | ✅   |
+| 9       | aarch64     | ✅    | ✅         | ✅  | ✅   | ✅   |
+| 10      | x86_64      | ✅    | ✅         | ✅  | ✅   | ✅   |
+| 10      | aarch64     | ✅    | ✅         | ✅  | ✅   | ✅   |
+| 10      | x86_64_v2   | ✅    | ✅         | ✅  | ❌   | ❌   |
+| 10-kitten | x86_64    | ✅    | ✅         | ✅  | ✅   | ✅   |
+| 10-kitten | aarch64   | ✅    | ✅         | ✅  | ✅   | ✅   |
+| 10-kitten | x86_64_v2 | ✅    | ✅         | ✅  | ❌   | ❌   |
+
+#### Troubleshooting
+* For AlmaLinux 10, SELinux may need to be set to permissive: `sudo setenforce 0`
+* Volume IDs are limited to 32 characters due to ISO9660 specification
+* Repository mirrors: Use https://mirrors.almalinux.org to find optimal mirrors
+
+#### CI/CD Integration
+This repository includes GitHub Actions workflows that automatically build live media images. The workflows support:
+- Multiple AlmaLinux versions (8, 9, 10, 10-kitten)
+- Multiple architectures and desktop environments
+- GitHub Actions artifact publishing
+- S3 upload and Mattermost notifications
