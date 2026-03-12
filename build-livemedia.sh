@@ -8,7 +8,7 @@ set -euo pipefail
 
 # Script configuration
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-RESULT_DIR="$(pwd)/results"
+RESULT_DIR="${RESULT_DIR:-$(pwd)/results}"
 LOG_FILE="${RESULT_DIR}/livemedia-build.log"
 
 # Ensure results directory exists for logging
@@ -68,6 +68,12 @@ Architecture support:
   - AlmaLinux 9: x86_64, aarch64
   - AlmaLinux 10/10-kitten: x86_64, aarch64, x86_64_v2
 
+Environment variables:
+  RESULT_DIR          Override default results directory (default: \$(pwd)/results)
+  BUILD_X86_64_V2=1   Build for x86_64_v2 architecture (AlmaLinux 10/10-kitten only)
+  DATE_STAMP          Override date stamp for 10-kitten builds (default: current date)
+  ITERATION           Override build iteration for 10-kitten builds (default: 0)
+
 Requirements:
   - AlmaLinux system (8, 9, or 10)
   - Root or sudo access
@@ -99,11 +105,13 @@ case "${VERSION_MAJOR}" in
         ;;
 esac
 
-# Validate desktop environment and convert to uppercase
-DESKTOP_ENV=$(echo "${DESKTOP_ENV}" | tr '[:lower:]' '[:upper:]')
-case "${DESKTOP_ENV}" in
-    GNOME|GNOME-MINI|KDE|XFCE|MATE)
-        ;;
+# Validate and normalize desktop environment name
+case "$(echo "${DESKTOP_ENV}" | tr '[:lower:]' '[:upper:]')" in
+    GNOME)      DESKTOP_ENV="GNOME" ;;
+    GNOME-MINI) DESKTOP_ENV="GNOME-Mini" ;;
+    KDE)        DESKTOP_ENV="KDE" ;;
+    XFCE)       DESKTOP_ENV="XFCE" ;;
+    MATE)       DESKTOP_ENV="MATE" ;;
     *)
         error "Invalid desktop environment: ${DESKTOP_ENV}. Supported: GNOME, GNOME-Mini, KDE, XFCE, MATE"
         ;;
@@ -142,7 +150,8 @@ case "${VERSION_MAJOR}" in
         NEED_PKGS="lorax lorax-templates-almalinux anaconda unzip zstd libblockdev-nvme"
         LIVEMEDIA_OPTS=""
         CODE_NAME=" Kitten"
-        DATE_STAMP=$(date -u '+%Y%m%d')
+        DATE_STAMP="${DATE_STAMP:-$(date -u '+%Y%m%d')}"
+        ITERATION="${ITERATION:-0}"
         ;;
 esac
 
@@ -175,9 +184,9 @@ case "${VERSION_MAJOR}" in
         esac
 
         # For media with x86_64_v2 packages
-        if [[ "${ARCH}" == "x86_64" ]] && [[ "${USE_X86_64_V2:-}" == "1" ]]; then
+        if [[ "${ARCH}" == "x86_64" ]] && [[ "${BUILD_X86_64_V2:-}" == "1" ]]; then
             ARCH="x86_64_v2"
-            log "Using x86_64_v2 optimization (set USE_X86_64_V2=1)"
+            log "Using x86_64_v2 optimization (set BUILD_X86_64_V2=1)"
         fi
         ;;
 esac
@@ -185,7 +194,7 @@ esac
 # Validate desktop environment and architecture combinations
 if [[ "${ARCH}" == "x86_64_v2" ]]; then
     case "${DESKTOP_ENV}" in
-        GNOME|GNOME-MINI|KDE)
+        GNOME|GNOME-Mini|KDE)
             ;;
         *)
             error "x86_64_v2 architecture only supports GNOME, GNOME-Mini, and KDE desktop environments. Requested: ${DESKTOP_ENV}"
@@ -199,8 +208,11 @@ KICKSTART_PATH="./kickstarts/${VERSION_MAJOR}/${ARCH}/${KICKSTART_FILE}"
 
 # Check if we're building Kitten with date stamp
 if [[ "${VERSION_MAJOR}" == "10-kitten" ]]; then
-    ISO_NAME="AlmaLinux-Kitten-10-${DATE_STAMP}.0-${ARCH}-Live-${DESKTOP_ENV}.iso"
+    ISO_NAME="AlmaLinux-Kitten-10-${DATE_STAMP}.${ITERATION}-${ARCH}-Live-${DESKTOP_ENV}.iso"
     VOLID="AlmaLinux-10-${ARCH}"
+elif [[ "${VERSION_MAJOR}" == "10" ]]; then
+    ISO_NAME="AlmaLinux-${RELEASEVER}-${ARCH}-Live-${DESKTOP_ENV}.iso"
+    VOLID="AlmaLinux-${RELEASEVER//./_}-${ARCH}" # TODO 'Live' skipped to fit into 32 chars
 else
     ISO_NAME="AlmaLinux-${RELEASEVER}-${ARCH}-Live-${DESKTOP_ENV}.iso"
     VOLID="AlmaLinux-${RELEASEVER//./_}-${ARCH}-Live"
@@ -208,7 +220,7 @@ fi
 
 # Handle volume ID length (ISO9660 32-char limit)
 # Apply Mini suffix for GNOME-Mini, then handle length
-if [[ "${DESKTOP_ENV}" == "GNOME-MINI" ]]; then
+if [[ "${DESKTOP_ENV}" == "GNOME-Mini" ]]; then
     VOLID="${VOLID}-Mini"
 else
     VOLID="${VOLID}-${DESKTOP_ENV}"
@@ -217,7 +229,7 @@ fi
 # Truncate if over 32 characters
 if [[ ${#VOLID} -gt 32 ]]; then
     case "${DESKTOP_ENV}" in
-        GNOME-MINI)
+        GNOME-Mini)
             VOLID="${VOLID:0:27}-Mini"
             ;;
         GNOME)
@@ -281,9 +293,13 @@ dnf install -y --enablerepo="${DNF_REPO}" ${NEED_PKGS} 2>&1 | tee -a "${LOG_FILE
 
 # Set SELinux to permissive for AlmaLinux 10
 if [[ "${VERSION_MAJOR}" =~ ^10 ]]; then
-    log "Setting SELinux to permissive mode for AlmaLinux 10..."
-    setenforce 0
-    warning "SELinux has been set to permissive mode"
+    if command -v getenforce &>/dev/null && [[ "$(getenforce)" != "Disabled" ]]; then
+        log "Setting SELinux to permissive mode for AlmaLinux 10..."
+        setenforce 0
+        warning "SELinux has been set to permissive mode"
+    else
+        log "SELinux is already disabled, skipping setenforce"
+    fi
 fi
 
 # Create livemedia-creator command

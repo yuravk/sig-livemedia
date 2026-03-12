@@ -83,7 +83,7 @@ sudo ./build-livemedia.sh 10 KDE
 sudo ./build-livemedia.sh 10-kitten GNOME-Mini
 
 # To build media with x86_64_v2 packages for AlmaLinux 10+ (optional)
-USE_X86_64_V2=1 sudo ./build-livemedia.sh 10 KDE
+BUILD_X86_64_V2=1 sudo ./build-livemedia.sh 10 KDE
 
 # Show all available options
 ./build-livemedia.sh --help
@@ -266,6 +266,171 @@ sudo livemedia-creator \
     --nomacboot \
     --logfile ./livemedia.log
 ```
+
+## Customizing Live Media
+
+AlmaLinux Live Media can be customized by editing the corresponding kickstart (`.ks`) files located in the `kickstarts/` directory. The specific file to edit depends on your target AlmaLinux version, architecture, and desktop environment.
+
+### Kickstart File Structure
+
+Kickstart files are organized as:
+```
+kickstarts/{version}/{architecture}/almalinux-live-{desktop}.ks
+```
+
+**Examples:**
+- `kickstarts/9/x86_64/almalinux-live-gnome.ks` - AlmaLinux 9 GNOME for x86_64
+- `kickstarts/10/aarch64/almalinux-live-kde.ks` - AlmaLinux 10 KDE for aarch64
+- `kickstarts/8/x86_64/almalinux-live-mate.ks` - AlmaLinux 8 MATE for x86_64
+
+### Kickstart Documentation
+
+For complete kickstart syntax and options, refer to the official Red Hat documentation:
+**[Kickstart Syntax Reference](https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/9/html/performing_an_advanced_rhel_9_installation/kickstart-commands-and-options-reference_installing-rhel-as-an-experienced-user)**
+
+### Common Customizations
+
+#### 1. Package Selection (`%packages` section)
+
+Add or remove packages in the `%packages` section:
+
+```bash
+%packages
+# Add packages
+git
+htop
+vim-enhanced
+
+# Remove packages (prefix with -)
+-libreoffice-calc
+-evolution
+
+# Package groups
+@core
+@base-x
+@fonts
+%end
+```
+
+#### 2. Additional Repositories (`repo` instruction)
+
+Enable additional repositories for more packages:
+
+```bash
+# Enable EPEL repository
+repo --name="epel" --baseurl=https://dl.fedoraproject.org/pub/epel/$releasever/Everything/$basearch/
+
+# Enable RPM Fusion
+repo --name="rpmfusion-free" --baseurl=https://download1.rpmfusion.org/free/el/$releasever/Everything/$basearch/os/
+
+# Local repository
+repo --name="local-repo" --baseurl=file:///path/to/local/repo
+```
+
+#### 3. System Configuration
+
+**Keyboard and Language:**
+```bash
+# Keyboard layout
+keyboard us
+
+# System language and locale
+lang en_US.UTF-8
+
+# Timezone
+timezone America/New_York --isUtc
+```
+
+**Network Configuration:**
+```bash
+# Enable NetworkManager
+network --onboot=yes --device=link --bootproto=dhcp --hostname=almalinux-live
+```
+
+**Services Management:**
+```bash
+# Enable services
+services --enabled=NetworkManager,sshd,chronyd
+
+# Disable services
+services --disabled=postfix,sendmail
+```
+
+#### 4. Disk Partitioning
+
+Customize the filesystem layout:
+
+```bash
+# Clear existing partitions
+clearpart --drives=sda --all --initlabel
+
+# Create partitions
+part /boot/efi --fstype="efi" --size=512 --fsoptions="umask=0077,shortname=winnt"
+part /boot --fstype="xfs" --size=1024
+part / --fstype="ext4" --size=8192 --grow
+part swap --fstype="swap" --size=2048
+```
+
+#### 5. Post-Installation Scripts (`%post` section)
+
+Add custom post-installation scripts:
+
+```bash
+%post --log=/var/log/ks-post.log
+
+# Configure custom settings
+echo "Welcome to Custom AlmaLinux Live" > /etc/motd
+
+# Create custom user
+useradd -m -G wheel customuser
+
+# Configure firewall
+firewall-cmd --permanent --add-service=ssh
+firewall-cmd --reload
+
+# Custom systemd service
+systemctl enable custom-service
+
+%end
+```
+
+#### 6. Pre-Installation Scripts (`%pre` section)
+
+Execute scripts before installation:
+
+```bash
+%pre --log=/tmp/ks-pre.log
+
+# Detect hardware and set variables
+MEMORY=$(free -m | awk 'NR==2{printf "%.0f", $2/1024}')
+if [ "$MEMORY" -lt 2 ]; then
+    echo "Insufficient memory for installation"
+    exit 1
+fi
+
+%end
+```
+
+### Testing Your Customizations
+
+1. **Edit the appropriate kickstart file** for your target version/architecture/desktop
+2. **Build with your modifications** using the build script:
+   ```bash
+   sudo ./build-livemedia.sh 9 GNOME
+   ```
+3. **Test the resulting ISO** in a virtual machine before deployment
+4. **Check logs** in `./results/logs/` if the build fails
+
+### Best Practices
+
+- **Backup original files** before making changes
+- **Test incrementally** - make small changes and test frequently
+- **Use package groups** (@core, @base, etc.) when possible for easier maintenance
+- **Document your changes** in comments within the kickstart file
+- **Validate syntax** using `ksvalidator` if available:
+  ```bash
+  ksvalidator kickstarts/9/x86_64/almalinux-live-gnome.ks
+  ```
 
 ### Additional Notes
 
