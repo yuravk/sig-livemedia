@@ -251,7 +251,10 @@ sudo livemedia-creator \
     --logfile ./livemedia.log
 ```
 
-**For x86_64_v2 (Optimized x86_64):**
+**For x86_64_v2**
+
+x86-64 v2 microarchitecture, to support older hardware with features match the 2008 Intel Nehalem architecture and newer.
+
 ```sh
 sudo livemedia-creator \
     --ks=./kickstarts/10/x86_64_v2/almalinux-live-kde.ks \
