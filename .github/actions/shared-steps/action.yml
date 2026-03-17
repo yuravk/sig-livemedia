@@ -1,31 +1,45 @@
 name: "Live Image build, upload and notify"
+description: "Builds AlmaLinux Live media ISO, uploads to S3, and sends notifications"
 
 inputs:
   image_type:
+    description: "Desktop environment type (GNOME, KDE, XFCE, MATE, etc.)"
     required: true
   version_major:
+    description: "AlmaLinux major version (8, 9, 10, 10-kitten)"
     required: true
   arch:
+    description: "Target architecture (x86_64, aarch64, x86_64_v2)"
     required: true
   S3_ACCESS_KEY_ID:
+    description: "AWS S3 access key ID for artifact upload"
     required: true
   S3_SECRET_ACCESS_KEY:
+    description: "AWS S3 secret access key for artifact upload"
     required: true
   AWS_REGION:
+    description: "AWS region for S3 bucket"
     required: true
   AWS_S3_BUCKET:
+    description: "AWS S3 bucket name for artifact storage"
     required: true
   MATTERMOST_WEBHOOK_URL:
+    description: "Mattermost webhook URL for notifications"
     required: true
   MATTERMOST_CHANNEL:
+    description: "Mattermost channel for notifications"
     required: true
   iteration:
+    description: "Build iteration number for versioning"
     required: true
   store_as_artifact:
+    description: "Whether to store ISO as GitHub Actions artifact"
     required: true
   upload_to_s3:
+    description: "Whether to upload artifacts to S3"
     required: true
   notify_mattermost:
+    description: "Whether to send notification to Mattermost"
     required: true
 
 runs:
@@ -36,11 +50,6 @@ runs:
       run: |
         # Set environment variables
         code_name_var=                                    # empty or ' Kitten', used for --project
-        livemedia_creator_opts=                           # livemedia-creator additional option(s)                                            # Arch, 'x86_64' or 'x86_64_v2'
-        dnf_crb_repo="CRB"                                # YUM repository to enable, 'CRB' or 'PowerTools'
-        image_type=${{ inputs.image_type }}
-        kickstart="almalinux-live-${image_type,,}.ks"
-        need_pkgs="lorax lorax-templates-almalinux anaconda unzip zstd"
         date_stamp=${{ env.TIME_STAMP }}
         date_stamp=${date_stamp::-6}
 
@@ -49,39 +58,27 @@ runs:
             version_minor=".10"
             releasever=${{ inputs.version_major }}${version_minor}
             results_name="AlmaLinux-${releasever}-${{ inputs.arch }}-Live-${{ inputs.image_type }}"
-            volid="AlmaLinux-${releasever//./_}-${{ inputs.arch }}-Live"
-            livemedia_creator_opts='--anaconda-arg="--product AlmaLinux"'
-            dnf_crb_repo="PowerTools"
             ;;
           9)
             version_minor=".7"
             releasever=${{ inputs.version_major }}${version_minor}
             results_name="AlmaLinux-${releasever}-${{ inputs.arch }}-Live-${{ inputs.image_type }}"
-            volid="AlmaLinux-${releasever//./_}-${{ inputs.arch }}-Live"
-            need_pkgs="${need_pkgs} libblockdev-nvme"
             ;;
           10)
             version_minor=".1"
             releasever=${{ inputs.version_major }}${version_minor}
             results_name="AlmaLinux-${releasever}-${{ inputs.arch }}-Live-${{ inputs.image_type }}"
-            volid="AlmaLinux-${releasever//./_}-${{ inputs.arch }}" # TODO 'Live' skipped to fit into 32 chars
-            need_pkgs="${need_pkgs} libblockdev-nvme"
             ;;
           10-kitten)
             version_minor=
             releasever=10
             code_name_var=" Kitten"
             results_name="AlmaLinux-Kitten-10-${date_stamp}.${{ inputs.iteration }}-${{ inputs.arch }}-Live-${{ inputs.image_type }}"
-            volid="AlmaLinux-${releasever}-${{ inputs.arch }}" # TODO 'Live' skipped to fit into 32 chars
-            need_pkgs="${need_pkgs} libblockdev-nvme"
             ;;
           *)
             echo "Almalinux ${{ inputs.version_major }} is not supported!" && false
             ;;
         esac
-
-        # Minor version
-        echo "version_minor=${version_minor}" >> $GITHUB_ENV
 
         # AlmaLinux "code" name
         echo "code_name_var=${code_name_var}" >> $GITHUB_ENV
@@ -89,25 +86,8 @@ runs:
         # Release version full
         echo "releasever=${releasever}" >> $GITHUB_ENV
 
-        # Name of repository to enable (PowerTools/CRB)
-        echo "dnf_crb_repo=${dnf_crb_repo}" >> $GITHUB_ENV
-
-        # List of the packages to prepare build env
-        echo "need_pkgs=${need_pkgs}" >> $GITHUB_ENV
-
-        # livemedia-creator additional options
-        echo "livemedia_creator_opts=${livemedia_creator_opts}" >> $GITHUB_ENV
-
-        # Kickstart file name
-        echo "kickstart=${kickstart}" >> $GITHUB_ENV
-
-        # Volume ID
-        if [[ ${{ inputs.image_type }} = *'Mini'* ]]; then
-          volid="${volid}-Mini"
-        else
-          volid="${volid}-${{ inputs.image_type }}"
-        fi
-        echo "volid=${volid}" >> $GITHUB_ENV
+        # Date stamp (YYYYMMDD)
+        echo "date_stamp=${date_stamp}" >> $GITHUB_ENV
 
         # Results file base name
         echo "results_name=${results_name}" >> $GITHUB_ENV
@@ -121,64 +101,40 @@ runs:
         case ${{ env.RUNNER }} in
           self-hosted)
             mkdir -p /vagrant
+            build_work_dir="."
             run="sh -c"
             copy_to='cp -av ${source} ${target}'
             copy_from=$copy_to
             ;;
           github-hosted)
+            build_work_dir="/vagrant"
             run="sudo vagrant ssh almalinux -c"
             copy_to='sudo vagrant scp ${source} almalinux:${target}'
             copy_from='sudo vagrant scp almalinux:${source} ${target}'
             ;;
         esac
+        echo "build_work_dir=${build_work_dir}" >> $GITHUB_ENV
         echo "run=${run}" >> $GITHUB_ENV
         echo "copy_to=${copy_to}" >> $GITHUB_ENV
         echo "copy_from=${copy_from}" >> $GITHUB_ENV
 
-        echo -e "[Debug]\nKickstart file: ${kickstart}\nVolume ID: ${volid}\nISO name: ${results_name}.iso\n"
+        echo -e "[Debug]\nISO name: ${results_name}.iso\n"
 
     - name: Create media creator script
       shell: bash
       run: |
-        cat <<'EOF'>./livemedia-creator.sh
-        [ "${{ env.RUNNER }}" = "github-hosted" ] && cd /vagrant
-        livemedia-creator \
-        --ks=./kickstarts/${{ inputs.version_major }}/${{ inputs.arch }}/${{ env.kickstart }} \
-        --no-virt \
-        --resultdir ${{ env.RESULT_DIR }}/iso_${{ inputs.image_type }} \
-        --project "Live AlmaLinux${{ env.code_name_var }}" \
-        --make-iso \
-        --iso-only \
-        --iso-name "${{ env.results_name }}.iso" \
-        --releasever "${{ env.releasever }}" \
-        --volid "${{ env.volid }}" \
-        --nomacboot \
-        --logfile ${{ env.RESULT_DIR }}/logs/livemedia.log ${{ env.livemedia_creator_opts }}
-        EOF
-
-        # Put the script into common place
-        source="./livemedia-creator.sh"
+        # Put the build script into common place
+        source="./build-livemedia.sh"
         target="/vagrant/"
         ${{ env.copy_to }}
-
-    - name: Install livemedia-creator
-      shell: bash
-      run: |
-        # Install need packages
-        enable_repo=${{ env.dnf_crb_repo }}
-        ${{ env.run }} "sudo dnf update -y"
-        ${{ env.run }} "sudo dnf install -y --enablerepo=${enable_repo,,} ${{ env.need_pkgs }}"
-
-    - name: Set SElinux current mode into permissive
-      shell: bash
-      if: contains(inputs.version_major, '10')
-      run: |
-        ${{ env.run }} "sudo setenforce 0"
 
     - name: Build media
       shell: bash
       run: |
-        ${{ env.run }} "sudo bash /vagrant/livemedia-creator.sh"
+        build_env="RESULT_DIR=${{ env.RESULT_DIR }}"
+        [ "${{ inputs.arch }}" = "x86_64_v2" ] && build_env="${build_env} BUILD_X86_64_V2=1"
+        [ "${{ inputs.version_major }}" = "10-kitten" ] && build_env="${build_env} DATE_STAMP=${{ env.date_stamp }} ITERATION=${{ inputs.iteration }}"
+        ${{ env.run }} "cd ${{ env.build_work_dir }} && sudo ${build_env} bash /vagrant/build-livemedia.sh ${{ inputs.version_major }} ${{ inputs.image_type }}"
 
     - name: Get ISO media
       if: inputs.store_as_artifact == 'true' || inputs.upload_to_s3 == 'true'
@@ -207,7 +163,7 @@ runs:
         ${{ env.copy_from }}
 
     - name: Store logs as artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       id: logs-artifact
       if: success() || failure()
       with:
@@ -215,7 +171,7 @@ runs:
         path: ${{ env.results_path }}/*.tar
 
     - name: Store CHECKSUM as artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       id: checksum-artifact
       if: steps.get-media.outcome == 'success' && inputs.store_as_artifact == 'true'
       with:
@@ -223,7 +179,7 @@ runs:
         path: ${{ env.results_path }}/${{ env.results_name }}.iso.CHECKSUM
 
     - name: Store ISO as artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       id: iso-artifact
       if: steps.get-media.outcome == 'success' && inputs.store_as_artifact == 'true'
       with:
@@ -233,7 +189,7 @@ runs:
 
     - name: Configure AWS credentials
       if: steps.get-media.outcome == 'success' && inputs.upload_to_s3 == 'true'
-      uses: aws-actions/configure-aws-credentials@v4.0.2
+      uses: aws-actions/configure-aws-credentials@v6
       with:
         aws-access-key-id: ${{ inputs.S3_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ inputs.S3_SECRET_ACCESS_KEY }}
@@ -261,7 +217,7 @@ runs:
 
     - name: Put S3 Bucket download URLs
       if: steps.get-media.outcome == 'success' && inputs.upload_to_s3 == 'true'
-      uses: actions/github-script@v7
+      uses: actions/github-script@v8
       with:
         result-encoding: string
         script: |
