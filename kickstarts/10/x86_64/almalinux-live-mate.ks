@@ -17,7 +17,7 @@ network  --bootproto=dhcp --device=link --activate
 # Repos
 url --url=https://repo.almalinux.org/almalinux/10/BaseOS/$basearch/os/
 repo --name="appstream" --baseurl=https://repo.almalinux.org/almalinux/10/AppStream/$basearch/os/
-repo --name="extras" --baseurl=https://repo.almalinux.org/almalinux/10/extras-common/$basearch/os/
+repo --name="extras" --baseurl=https://repo.almalinux.org/almalinux/10/extras/$basearch/os/
 repo --name="crb" --baseurl=https://repo.almalinux.org/almalinux/10/CRB/$basearch/os/
 repo --name="epel" --baseurl=https://dl.fedoraproject.org/pub/epel/10z/Everything/$basearch/
 
@@ -145,9 +145,10 @@ livesys-scripts
 memtest86+
 
 # libreoffice group
-@office-suite
-# firefox
-@internet-browser
+#@office-suite
+
+# internet-browser group
+firefox
 
 # We don't provide any MATE environment group, so mandatory groups are
 @networkmanager-submodules
