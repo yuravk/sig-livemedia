@@ -289,7 +289,7 @@ jobs:
       - name: Setup and start the runner
         if: ${{ inputs.version_major != '8' }}
         id: start-ec2-runner
-        uses: NextChapterSoftware/ec2-action-builder@v1.12
+        uses: unblocked/ec2-action-builder@v1.12
         with:
           github_token: ${{ secrets.GIT_HUB_TOKEN }}
           aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
