@@ -85,6 +85,9 @@ sudo ./build-livemedia.sh 10-kitten GNOME-Mini
 # To build media with x86_64_v2 packages for AlmaLinux 10+ (optional)
 BUILD_X86_64_V2=1 sudo ./build-livemedia.sh 10 KDE
 
+# Build AlmaLinux 10.2 GNOME Live Media with NVIDIA GPU drivers
+sudo ./build-livemedia.sh 10 GNOME --with-nvidia
+
 # Show all available options
 ./build-livemedia.sh --help
 ```
@@ -465,6 +468,18 @@ The following desktop environments are supported:
 | 10-kitten | x86_64    | ✅    | ✅         | ✅  | ✅   | ✅   |
 | 10-kitten | aarch64   | ✅    | ✅         | ✅  | ✅   | ✅   |
 | 10-kitten | x86_64_v2 | ✅    | ✅         | ✅  | ❌   | ❌   |
+
+#### NVIDIA GPU Driver Support
+
+You can build Live Media ISOs with the official NVIDIA GPU driver stack pre-installed by passing the `--with-nvidia` flag:
+* **Supported OS Versions**: AlmaLinux 9, 10, and 10-kitten.
+* **Supported Architectures**: `x86_64` (standard v1) and `aarch64`.
+* **Unsupported configurations**: NVIDIA support is **not** available for AlmaLinux 8 or `x86_64_v2` architectures.
+* **Local Build Dependency Warning (DNF5 Host)**: Because DNF5 on AlmaLinux 10 host machines does not download `filelists` metadata by default, building an AlmaLinux 9 image on an AlmaLinux 10 host will fail to resolve some file paths. Enable filelists on the host first by running:
+  ```sh
+  echo "optional_metadata_types = filelists" | sudo tee -a /etc/dnf/dnf.conf
+  sudo dnf makecache
+  ```
 
 #### Troubleshooting
 * For AlmaLinux 10, SELinux may need to be set to permissive: `sudo setenforce 0`
