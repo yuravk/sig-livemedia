@@ -92,6 +92,7 @@ jobs:
     name: ${{ matrix.version }} ${{ matrix.arch }} ${{ matrix.image_type }}
     needs: [init-data]
     runs-on: ubuntu-24.04
+    if: ${{ !(inputs.with_nvidia && matrix.arch == 'x86_64_v2') }}
     strategy:
       fail-fast: false
       matrix:
