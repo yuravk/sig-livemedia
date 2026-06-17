@@ -68,6 +68,12 @@ on:
         type: boolean
         default: false
 
+      with_nvidia:
+        description: 'Include NVIDIA GPU drivers (AlmaLinux 9/10/10-kitten only)'
+        required: true
+        type: boolean
+        default: false
+
 jobs:
   init-data:
     name: Initialize common data
@@ -227,6 +233,7 @@ jobs:
           store_as_artifact: ${{ inputs.store_as_artifact }}
           upload_to_s3: ${{ inputs.upload_to_s3 }}
           notify_mattermost: ${{ inputs.notify_mattermost }}
+          with_nvidia: ${{ inputs.with_nvidia }}
 
 
   start-aarch64-runner:
@@ -371,3 +378,4 @@ jobs:
           store_as_artifact: ${{ inputs.store_as_artifact }}
           upload_to_s3: ${{ inputs.upload_to_s3 }}
           notify_mattermost: ${{ inputs.notify_mattermost }}
+          with_nvidia: ${{ inputs.with_nvidia }}
