@@ -312,9 +312,8 @@ log "Using kickstart: ${KICKSTART_PATH}"
 # Check if result directory from previous build exists (livemedia-creator will fail if it does)
 if [[ -d "${ISO_RESULT_DIR}" ]]; then
     warning "Result directory from previous build exists: ${ISO_RESULT_DIR}"
-    warning "livemedia-creator will fail if this directory exists."
-    warning "Please remove it manually: rm -rf \"${ISO_RESULT_DIR}\""
-    error "Cannot proceed with existing result directory"
+    log "Automatically removing old result directory to proceed..."
+    rm -rf "${ISO_RESULT_DIR}"
 fi
 
 # Check if running as root
