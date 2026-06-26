@@ -1,5 +1,8 @@
 name: Build Live images
 
+run-name: >-
+  Build AlmaLinux ${{ inputs.version_major == '10-kitten' && 'Kitten 10' || inputs.version_major }} Live images:${{ inputs.GNOME && ' GNOME' || '' }}${{ inputs.GNOME-Mini && ' GNOME-Mini' || '' }}${{ inputs.KDE && ' KDE' || '' }}${{ inputs.MATE && ' MATE' || '' }}${{ inputs.XFCE && ' XFCE' || '' }}
+
 on:
   workflow_dispatch:
     inputs:
