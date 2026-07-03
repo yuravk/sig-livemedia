@@ -248,7 +248,7 @@ jobs:
 
 
   start-aarch64-runner:
-    name: Runner for ${{ inputs.version_major }} aarch64
+    name: Runner for aarch64
     runs-on: ubuntu-24.04
     needs: [init-data]
     if: ${{ inputs.architecture != 'x86_64' }}
@@ -330,7 +330,7 @@ jobs:
             ]
 
   build-aarch64:
-    name: Build aarch64 images for ${{ inputs.version_major }}
+    name: Build aarch64 images
     runs-on: ${{ inputs.version_major != '8' && github.run_id || 'ubuntu-24.04' }}
     if: ${{ inputs.architecture != 'x86_64' && always() && contains(join(needs.start-aarch64-runner.result, ','), 'success') }}
     needs: [init-data, start-aarch64-runner]
