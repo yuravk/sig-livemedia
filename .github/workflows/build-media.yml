@@ -45,6 +45,16 @@ on:
           - '9'
           - '8'
 
+      architecture:
+        description: 'Architecture to build'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - 'all'
+          - 'x86_64'
+          - 'aarch64'
+
       iteration:
         description: 'Kitten 10 build iteration'
         required: true
@@ -92,6 +102,7 @@ jobs:
     name: ${{ matrix.version }} ${{ matrix.arch }} ${{ matrix.image_type }}
     needs: [init-data]
     runs-on: ubuntu-24.04
+    if: ${{ inputs.architecture != 'aarch64' }}
     strategy:
       fail-fast: false
       matrix:
@@ -237,9 +248,10 @@ jobs:
 
 
   start-aarch64-runner:
-    name: Runner for ${{ inputs.version_major }} ${{ matrix.arch }} ${{ matrix.image_type }}
+    name: Runner for ${{ inputs.version_major }} aarch64
     runs-on: ubuntu-24.04
     needs: [init-data]
+    if: ${{ inputs.architecture != 'x86_64' }}
     strategy:
       fail-fast: false
       matrix:
@@ -318,9 +330,9 @@ jobs:
             ]
 
   build-aarch64:
-    name: ${{ inputs.version_major }} ${{ matrix.arch }} ${{ matrix.image_type }}
+    name: Build aarch64 images for ${{ inputs.version_major }}
     runs-on: ${{ inputs.version_major != '8' && github.run_id || 'ubuntu-24.04' }}
-    if: ${{ always() && contains(join(needs.start-aarch64-runner.result, ','), 'success') }}
+    if: ${{ inputs.architecture != 'x86_64' && always() && contains(join(needs.start-aarch64-runner.result, ','), 'success') }}
     needs: [init-data, start-aarch64-runner]
     strategy:
       fail-fast: false
