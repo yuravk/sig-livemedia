@@ -42,7 +42,7 @@ inputs:
     description: "Whether to send notification to Mattermost"
     required: true
   with_nvidia:
-    description: "Whether to include NVIDIA GPU drivers"
+    description: "Whether to include NVIDIA GPU drivers for x86_64 builds"
     required: true
     default: "false"
 

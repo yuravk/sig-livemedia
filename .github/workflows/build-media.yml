@@ -79,7 +79,7 @@ on:
         default: false
 
       with_nvidia:
-        description: 'Include NVIDIA GPU drivers (AlmaLinux 9/10/10-kitten only)'
+        description: 'Include NVIDIA GPU drivers (AlmaLinux 9/10/10-kitten on x86_64 only)'
         required: true
         type: boolean
         default: false

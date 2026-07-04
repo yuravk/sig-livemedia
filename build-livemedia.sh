@@ -224,8 +224,8 @@ fi
 
 # Validate NVIDIA support on requested architecture
 if [[ "${WITH_NVIDIA}" == true ]]; then
-    if [[ "${ARCH}" == "x86_64_v2" ]]; then
-        error "NVIDIA drivers are not supported on x86_64_v2 architecture"
+    if [[ "${ARCH}" != "x86_64" ]]; then
+        error "NVIDIA drivers are only supported on x86_64 architecture"
     fi
 fi
 
