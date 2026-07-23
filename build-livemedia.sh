@@ -73,6 +73,7 @@ Environment variables:
   BUILD_X86_64_V2=1   Build for x86_64_v2 architecture (AlmaLinux 10/10-kitten only)
   DATE_STAMP          Override date stamp for 10-kitten builds (default: current date)
   ITERATION           Override build iteration for 10-kitten builds (default: 0)
+  PUNGI_REPOS=1       Build from PUNGI pre-release repositories (AlmaLinux 9 and 10 only)
 
 Requirements:
   - AlmaLinux system (8, 9, or 10)
@@ -265,6 +266,40 @@ if [[ ! -f "${KICKSTART_PATH}" ]]; then
 fi
 
 log "Using kickstart: ${KICKSTART_PATH}"
+
+# Rewrite the kickstart to build from the PUNGI pre-release repositories
+# (https://<arch>-pungi-<major>.almalinux.dev) instead of the public ones.
+# This allows building images before an AlmaLinux version is publicly
+# released. The PUNGI compose mirrors the public repository layout exactly
+# (same <Repo>/<arch>/os paths), so the rewrite is a prefix substitution
+# over the 'url --url' and the appstream/extras/crb 'repo --baseurl' lines.
+# The epel repo stays on its public host, except the almalinux-epel one
+# (x86_64_v2 kickstarts): it is switched from the released <major>z path
+# to the pre-release <major><minor>z one.
+if [[ "${PUNGI_REPOS:-}" == "1" ]]; then
+    case "${VERSION_MAJOR}" in
+        9|10)
+            ;;
+        *)
+            error "PUNGI_REPOS is supported for AlmaLinux 9 and 10 only, not for '${VERSION_MAJOR}'"
+            ;;
+    esac
+
+    # Host names dash the underscores: x86_64 -> x86-64, x86_64_v2 -> x86-64-v2
+    PUNGI_URL="https://${ARCH//_/-}-pungi-${VERSION_MAJOR}.almalinux.dev/almalinux/${VERSION_MAJOR}/${ARCH}/latest_result_almalinux/compose"
+
+    log "Rewriting kickstart to the PUNGI pre-release repositories: ${PUNGI_URL}"
+    sed -E -i \
+        -e "/^(url |repo --name=\"(appstream|extras|crb)\" )/s#https://(atl\.mirrors\.knownhost\.com|repo\.almalinux\.org)/almalinux/${VERSION_MAJOR}#${PUNGI_URL}#" \
+        -e "/^repo --name=\"epel\" /s#https://repo\.almalinux\.org/almalinux-epel/${VERSION_MAJOR}z/#https://repo.almalinux.org/almalinux-epel/${VERSION_MAJOR}${VERSION_MINOR}z/#" \
+        "${KICKSTART_PATH}"
+
+    # Verify no url/baseurl of the base repositories still points elsewhere
+    LEFTOVER=$(grep -E "^(url |repo --name=\"(appstream|extras|crb)\" )" "${KICKSTART_PATH}" | grep -v "pungi-${VERSION_MAJOR}.almalinux.dev" || true)
+    if [[ -n "${LEFTOVER}" ]]; then
+        error "Public repository URLs remain after the PUNGI rewrite:\n${LEFTOVER}"
+    fi
+fi
 
 # Check if result directory from previous build exists (livemedia-creator will fail if it does)
 ISO_RESULT_DIR="${RESULT_DIR}/iso_${DESKTOP_ENV}"

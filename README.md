@@ -85,6 +85,9 @@ sudo ./build-livemedia.sh 10-kitten GNOME-Mini
 # To build media with x86_64_v2 packages for AlmaLinux 10+ (optional)
 BUILD_X86_64_V2=1 sudo ./build-livemedia.sh 10 KDE
 
+# To build from the PUNGI pre-release repositories (AlmaLinux 9 and 10 only, optional)
+PUNGI_REPOS=1 sudo ./build-livemedia.sh 10 GNOME
+
 # Show all available options
 ./build-livemedia.sh --help
 ```
@@ -103,6 +106,14 @@ BUILD_X86_64_V2=1 sudo ./build-livemedia.sh 10 KDE
 - **Architecture**: Version-specific support (see table below)
 
 The script handles all the complexity shown in the manual examples below and follows the same build process used in the CI workflows.
+
+### Build from PUNGI pre-release repositories
+
+Before an AlmaLinux version is publicly released, its packages are only available from the PUNGI compose hosts (`https://<arch>-pungi-<major>.almalinux.dev`). To build Live media from those composes instead of the public repositories, set `PUNGI_REPOS=1` as shown in the Quick Start above.
+
+The `build-livemedia.sh` script rewrites the used kickstart in place: the `url --url` and the `appstream`/`extras`/`crb` `repo --baseurl` lines are pointed at the PUNGI compose, which mirrors the public repository layout exactly, keeping the image content identical to a GA build. The `epel` repository stays on its public host; only the `almalinux-epel` one (x86_64_v2 kickstarts) is switched from the released `<major>z` path to the pre-release `<major>.<minor>z` one. AlmaLinux 8 (no PUNGI hosts exist) and AlmaLinux Kitten (a rolling stream whose public repositories already are the latest compose) are not supported. The rewrite is meant for the working tree only - do not commit the rewritten kickstarts.
+
+The Build Live images workflow automates this with the **Build from PUNGI pre-release repositories** input. The run name and the Mattermost notifications carry PUNGI warnings, so pre-release builds are unmistakable.
 
 ### Manual Build using `livemedia-creator`
 
@@ -479,5 +490,6 @@ The following desktop environments are supported:
 This repository includes GitHub Actions workflows that automatically build live media images. The workflows support:
 - Multiple AlmaLinux versions (8, 9, 10, 10-kitten)
 - Multiple architectures and desktop environments
+- Building from the PUNGI pre-release repositories (AlmaLinux 9 and 10 only)
 - GitHub Actions artifact publishing
 - S3 upload and Mattermost notifications
